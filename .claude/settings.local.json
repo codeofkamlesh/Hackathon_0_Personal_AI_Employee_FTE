@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 skills/reasoning_loop.py)",
+      "Bash(python3 skills/linkedin_drafter.py)"
+    ]
+  }
+}
