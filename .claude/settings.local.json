@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 skills/reasoning_loop.py)",
+      "Bash(python3 skills/linkedin_drafter.py)",
+      "Bash(chmod +x /mnt/c/Users/Admin/Documents/GitHub/Hackathon_0_Personal_AI_Employee_FTE/.claude/skills/*/run.py)",
+      "Bash(python3 validate_silver.py 2>&1 | tail -20)",
+      "Bash(ls -la /mnt/c/Users/Admin/Documents/GitHub/Hackathon_0_Personal_AI_Employee_FTE/.claude/skills/*/SKILL.md)",
+      "Bash(pip install -r requirements.txt)",
+      "Bash(python3 -m venv venv)",
+      "Bash(./venv/bin/pip install -r requirements.txt)",
+      "Bash(./venv/bin/python -c \"from google.auth.transport.requests import Request; from google.oauth2.credentials import Credentials; from google_auth_oauthlib.flow import InstalledAppFlow; from googleapiclient.discovery import build; print\\('All imports successful!'\\)\")",
+      "Bash(chmod +x test_linkedin_workflow.sh test_gmail_workflow.sh orchestrator.sh)",
+      "Bash(chmod +x skills/*.py)",
+      "Bash(python3 skills/automated_gmail_handler.py)",
+      "Bash(chmod +x /mnt/c/Users/Admin/Documents/GitHub/Hackathon_0_Personal_AI_Employee_FTE/authenticate_gmail_send.py)",
+      "Bash(chmod +x /mnt/c/Users/Admin/Documents/GitHub/Hackathon_0_Personal_AI_Employee_FTE/setup_gmail_send.sh)",
+      "Bash(python3 -c \"import playwright; print\\('Playwright installed:', playwright.__version__\\)\")"
+    ]
+  }
+}
