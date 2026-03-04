@@ -1,0 +1,16 @@
+[Unit]
+Description=LinkedIn Watcher - AI Employee
+After=network.target
+
+[Service]
+Type=simple
+User=%u
+WorkingDirectory=/mnt/c/Users/Admin/Documents/GitHub/Hackathon_0_Personal_AI_Employee_FTE
+ExecStart=/mnt/c/Users/Admin/Documents/GitHub/Hackathon_0_Personal_AI_Employee_FTE/venv/bin/python watchers/linkedin_watcher.py
+Restart=always
+RestartSec=10
+StandardOutput=append:/var/log/linkedin_watcher.log
+StandardError=append:/var/log/linkedin_watcher.log
+
+[Install]
+WantedBy=multi-user.target

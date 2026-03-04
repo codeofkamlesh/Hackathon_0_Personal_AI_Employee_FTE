@@ -10,33 +10,91 @@ from pathlib import Path
 from datetime import datetime
 import json
 import logging
+import pickle
 
 # Add parent directory to path for imports
 sys.path.append(str(Path(__file__).parent))
 from base_watcher import BaseWatcher
 
-# Mock Gmail API for demonstration (replace with real API in production)
-class MockGmailService:
-    """Mock Gmail service for demonstration purposes"""
+# Try to import Gmail API, fall back to mock if not available
+try:
+    from google.auth.transport.requests import Request
+    from google.oauth2.credentials import Credentials
+    from google_auth_oauthlib.flow import InstalledAppFlow
+    from googleapiclient.discovery import build
+    GMAIL_API_AVAILABLE = True
+except ImportError:
+    GMAIL_API_AVAILABLE = False
+    print("Warning: Gmail API libraries not installed. Using mock mode.")
+    print("Install with: pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client")
+
+
+class GmailService:
+    """Real Gmail API service"""
+
+    SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
     def __init__(self, credentials_path: str):
         self.credentials_path = credentials_path
-        self.processed_ids = set()
+        self.token_path = Path(credentials_path).parent / 'token.pickle'
+        self.service = self._authenticate()
+
+    def _authenticate(self):
+        """Authenticate with Gmail API"""
+        creds = None
+
+        # Load existing token
+        if self.token_path.exists():
+            with open(self.token_path, 'rb') as token:
+                creds = pickle.load(token)
+
+        # Refresh or get new credentials
+        if not creds or not creds.valid:
+            if creds and creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+            else:
+                flow = InstalledAppFlow.from_client_secrets_file(
+                    self.credentials_path, self.SCOPES)
+                creds = flow.run_local_server(port=0)
+
+            # Save credentials
+            with open(self.token_path, 'wb') as token:
+                pickle.dump(creds, token)
+
+        return build('gmail', 'v1', credentials=creds)
 
     def list_messages(self, query: str = 'is:unread is:important'):
-        """Mock method - returns sample unread messages"""
-        # In production, this would use Google API:
-        # from google.oauth2.credentials import Credentials
-        # from googleapiclient.discovery import build
-        # service = build('gmail', 'v1', credentials=creds)
-        # results = service.users().messages().list(userId='me', q=query).execute()
+        """List messages matching query"""
+        try:
+            results = self.service.users().messages().list(
+                userId='me', q=query, maxResults=10).execute()
+            return results.get('messages', [])
+        except Exception as e:
+            print(f"Error listing messages: {e}")
+            return []
 
-        # For demo, return empty list (no mock emails)
+    def get_message(self, message_id: str):
+        """Get full message details"""
+        try:
+            return self.service.users().messages().get(
+                userId='me', id=message_id, format='full').execute()
+        except Exception as e:
+            print(f"Error getting message: {e}")
+            return None
+
+
+class MockGmailService:
+    """Mock Gmail service for demonstration when API not available"""
+
+    def __init__(self, credentials_path: str):
+        self.credentials_path = credentials_path
+
+    def list_messages(self, query: str = 'is:unread is:important'):
+        """Mock method - returns empty list"""
         return []
 
     def get_message(self, message_id: str):
-        """Mock method - returns message details"""
-        # In production: service.users().messages().get(userId='me', id=message_id).execute()
+        """Mock method - returns sample message"""
         return {
             'id': message_id,
             'snippet': 'This is a sample email content...',
@@ -56,12 +114,25 @@ class GmailWatcher(BaseWatcher):
     def __init__(self, vault_path: str, credentials_path: str = None):
         super().__init__(vault_path, check_interval=120)  # Check every 2 minutes
 
-        # Use mock credentials path if not provided
+        # Use credentials.json from project root if not provided
         if credentials_path is None:
-            credentials_path = str(Path(__file__).parent / 'mock_gmail_credentials.json')
+            project_root = Path(__file__).parent.parent
+            credentials_path = str(project_root / 'credentials.json')
 
         self.credentials_path = credentials_path
-        self.service = MockGmailService(credentials_path)
+
+        # Use real Gmail API if available and credentials exist, otherwise mock
+        if GMAIL_API_AVAILABLE and Path(credentials_path).exists():
+            try:
+                self.service = GmailService(credentials_path)
+                self.logger.info("Using real Gmail API")
+            except Exception as e:
+                self.logger.warning(f"Failed to initialize Gmail API: {e}. Using mock mode.")
+                self.service = MockGmailService(credentials_path)
+        else:
+            self.logger.info("Using mock Gmail service (API not available or credentials missing)")
+            self.service = MockGmailService(credentials_path)
+
         self.processed_ids = set()
 
         # Load processed IDs from state file

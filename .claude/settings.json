@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "email": {
+      "command": "node",
+      "args": [
+        "/mnt/c/Users/Admin/Documents/GitHub/Hackathon_0_Personal_AI_Employee_FTE/mcp-servers/email/index.js"
+      ],
+      "env": {
+        "EMAIL_FROM": "ai-employee@example.com"
+      }
+    }
+  },
+  "permissions": {
+    "allow": [
+      "Bash(python3 .claude/skills/*/run.py)",
+      "Bash(python3 skills/reasoning_loop.py)",
+      "Bash(python3 skills/linkedin_drafter.py)",
+      "Bash(python3 skills/process_needs_action.py)",
+      "Bash(python3 skills/read_vault_status.py)",
+      "Bash(python3 watchers/*.py)"
+    ]
+  }
+}

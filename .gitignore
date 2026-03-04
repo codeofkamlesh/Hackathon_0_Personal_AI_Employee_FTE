@@ -52,3 +52,7 @@ logs/
 # Watcher state
 *.pid
 processed_files.json
+.browser_data/
+node_modules/
+credentials.json
+token.pickle

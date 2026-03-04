@@ -1,10 +1,13 @@
-# No external dependencies required for Bronze Tier
-# All functionality uses Python standard library only
+# Bronze Tier - No external dependencies (uses Python standard library only)
 
-# For future tiers, you may need:
-# google-auth>=2.0.0
-# google-auth-oauthlib>=0.5.0
-# google-auth-httplib2>=0.1.0
-# google-api-python-client>=2.0.0
-# playwright>=1.40.0
+# Silver Tier - Gmail Integration
+google-auth>=2.0.0
+google-auth-oauthlib>=0.5.0
+google-auth-httplib2>=0.1.0
+google-api-python-client>=2.0.0
+
+# Silver Tier - Browser Automation (LinkedIn posting)
+playwright>=1.40.0
+
+# Optional for future enhancements
 # watchdog>=3.0.0
